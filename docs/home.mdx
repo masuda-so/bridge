@@ -1,8 +1,11 @@
-# Agent Skills
+---
+title: "Agent Skills Overview"
+sidebarTitle: "Overview"
+description: "A standardized way to give AI agents new capabilities and expertise."
+---
 
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/MKPE9g8aUy)
-
-A standardized way to give AI agents new capabilities and expertise.
+import { clients } from '/snippets/clients.jsx';
+import { LogoCarousel } from '/snippets/LogoCarousel.jsx';
 
 ## What are Agent Skills?
 
@@ -41,19 +44,31 @@ Full instructions load only when a task calls for them, so agents can keep many 
 
 ## Where can I use Agent Skills?
 
-Agent Skills are supported by a large number of AI tools and agentic clients — see the [Client Showcase](https://agentskills.io/clients) to explore some of them!
+Agent Skills are supported by a large number of AI tools and agentic clients — see the [Client Showcase](/clients) to explore some of them!
 
-## Getting started
-
-- **[Documentation](https://agentskills.io)** — Guides and tutorials
-- **[Specification](https://agentskills.io/specification)** — Format details
-- **[Example Skills](https://github.com/anthropics/skills)** — See what's possible
-- **[Discord](https://discord.gg/MKPE9g8aUy)** — Share what you're building!
+<LogoCarousel clients={clients} />
 
 ## Open development
 
-The Agent Skills format was originally developed by [Anthropic](https://www.anthropic.com/), released as an open standard, and has been adopted by a growing number of agent products. The standard is open to contributions from the broader ecosystem — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for how to get involved.
+The Agent Skills format was originally developed by [Anthropic](https://www.anthropic.com/), released as an open standard, and has been adopted by a growing number of agent products. The standard is open to contributions from the broader ecosystem.
 
-## License
+Come join the discussion on [GitHub](https://github.com/agentskills/agentskills) or [Discord](https://discord.gg/MKPE9g8aUy)!
 
-Code in this repository is licensed under [Apache 2.0](LICENSE). Documentation is licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). See individual directories for details.
+## Get started with Agent Skills
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/skill-creation/quickstart"
+  >
+    Create your first Agent Skill and see it in action.
+  </Card>
+  <Card
+    title="Specification"
+    icon="file-code"
+    href="/specification"
+  >
+    The complete format specification for Agent Skills.
+  </Card>
+</CardGroup>
