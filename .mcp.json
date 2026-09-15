@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "bridge": {
+      "command": "node",
+      "args": [
+        "./dist/server.mjs"
+      ],
+      "cwd": "."
+    }
+  }
+}

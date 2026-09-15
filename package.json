@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "cd docs && npx mint dev",
-    "test:bridge": "node --test mcp/test/*.test.mjs"
+    "test:bridge": "node --test mcp/test/*.test.mjs",
+    "build": "node scripts/build.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",

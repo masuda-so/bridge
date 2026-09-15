@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "bridge": {
+      "command": "node",
+      "args": ["${BRIDGE_DIST:-dist/server.mjs}"],
+      "env": {
+        "BRIDGE_CLAUDE_CHANNEL": "1",
+        "BRIDGE_CHANNEL_PEER_ID": "relay-1"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "bridge",
+  "version": "0.5.0",
+  "description": "Use either Codex or Claude as the primary conversation and request bounded assistance from an existing agent. Claude Desktop delivery is verified with a running relay; the new Codex receiving-task route requires live validation.",
+  "author": {
+    "name": "masuda-so"
+  },
+  "mcpServers": "./mcp/claude.json",
+  "skills": "./skills/"
+}
