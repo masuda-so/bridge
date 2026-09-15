@@ -1,4 +1,9 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(node relay/start-relay.mjs:*)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
