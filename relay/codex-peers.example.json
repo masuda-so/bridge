@@ -1,0 +1,10 @@
+[
+  {
+    "id": "codex-relay-1",
+    "sessionId": "codex-relay-1",
+    "protocol": "bridge-codex-inbox-v1",
+    "title": "Codexの補助通信待受",
+    "url": "http://127.0.0.1:8791",
+    "token": "REPLACE_WITH_A_NEW_RANDOM_SECRET_AT_LEAST_32_BYTES"
+  }
+]

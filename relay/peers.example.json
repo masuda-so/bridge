@@ -1,0 +1,9 @@
+[
+  {
+    "id": "relay-1",
+    "sessionId": "relay-1",
+    "title": "terminal relay to Desktop",
+    "url": "http://127.0.0.1:8790",
+    "token": "REPLACE-WITH-THE-SAME-32-BYTE-OR-LONGER-TOKEN"
+  }
+]

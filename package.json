@@ -1,7 +1,19 @@
 {
-  "name": "agentskills",
+  "name": "bridge",
   "private": true,
   "scripts": {
-    "dev": "cd docs && npx mint dev"
-  }
+    "dev": "cd docs && npx mint dev",
+    "test:bridge": "node --test mcp/test/*.test.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
+    "zod": "4.5.4"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.0.0",
+    "esbuild": "0.28.2"
+  },
+  "version": "0.5.0",
+  "type": "module"
 }
