@@ -39,16 +39,22 @@ function portListening(port){
  });
 }
 
-function launchProcess(command,{cwd,env}){
+export function launchProcess(command,{cwd,env,timeoutMs=45000}){
  return new Promise(done=>{
   const child=spawn(command[0],command.slice(1),{cwd,env,stdio:['ignore','pipe','pipe']});
-  let stdout='';
+  let stdout='',settled=false;
+  const finish=result=>{if(settled)return;settled=true;clearTimeout(timer);done(result);};
+  const timer=setTimeout(()=>{
+   child.kill('SIGTERM');
+   child.stdout.destroy();child.stderr.destroy();child.unref();
+   finish({code:null,stdout,timedOut:true});
+  },timeoutMs);
   child.stdout.on('data',chunk=>{stdout=(stdout+chunk).slice(-65536);});
   // Drain stderr without echoing arbitrary output that may contain expanded
   // configuration. The host's own diagnostic log retains its errors.
   child.stderr.on('data',()=>{});
-  child.once('error',()=>done({code:-1,stdout}));
-  child.once('exit',code=>done({code,stdout}));
+  child.once('error',()=>finish({code:-1,stdout}));
+  child.once('exit',code=>finish({code,stdout}));
  });
 }
 
@@ -121,12 +127,13 @@ export async function runLauncher(argv=process.argv.slice(2),dependencies={}){
  try{before=await listSessions();}catch{return result('unknown',{error:'Cannot verify existing sessions; no relay was started.'},2);}
  if(before.some(s=>s.name===peerId))return result('failed',{error:'A session already uses this relay name; no relay was started.'},1);
  if(await isListening(port))return result('failed',{port,error:'Receiver port is already listening; no relay was started.'},1);
+ const deadline=now()+45000;
  let launched;
- try{launched=await launch(command,{cwd:root,env:childEnv});}
+ try{launched=await launch(command,{cwd:root,env:childEnv,timeoutMs:Math.max(1,deadline-now())});}
  catch{return result('unknown',{error:'Launcher outcome is unknown; no replacement will be started.'},2);}
  if(launched.code!==0)return result('unknown',{error:'Claude background launch did not report success; inspect its status before another launch.'},2);
  const backgroundId=String(launched.stdout??'').match(/backgrounded · ([0-9a-f]+)/)?.[1];
- const deadline=now()+45000;let session,receiver;
+ let session,receiver;
  while(now()<deadline){
   await sleep(1500);
   try{

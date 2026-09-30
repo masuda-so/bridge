@@ -17,10 +17,14 @@ function validateForwardTo(forwardTo) {
 
 // mcp/channel-peers.mjs
 var defaultPeersFile = join(homedir(), ".config", "bridge", "peers.json");
+function assertPeersPlatform(platform = process.platform) {
+  if (platform === "win32") throw Error("Private channel peers files require POSIX ownership, permissions and O_NOFOLLOW; Windows is unsupported");
+}
 async function loadChannelPeers(path = process.env.BRIDGE_CHANNEL_PEERS_FILE) {
   const explicit = path !== void 0;
   if (!explicit) path = defaultPeersFile;
   if (!path) return [];
+  assertPeersPlatform();
   if (!isAbsolute2(path)) throw Error("Channel peers file must use an absolute path");
   let handle;
   try {
@@ -46,10 +50,13 @@ async function loadChannelPeers(path = process.env.BRIDGE_CHANNEL_PEERS_FILE) {
 }
 function validateChannelPeers(peers) {
   if (!Array.isArray(peers) || peers.length > 32) throw Error("Expected at most 32 channel peers");
-  const ids = /* @__PURE__ */ new Set();
+  const ids = /* @__PURE__ */ new Set(), sessions = /* @__PURE__ */ new Set();
   for (const p of peers) {
     if (!p || typeof p.id !== "string" || !p.id || ids.has(p.id) || typeof p.sessionId !== "string" || !p.sessionId) throw Error("Invalid or duplicate channel peer");
     ids.add(p.id);
+    const sessionKey = JSON.stringify([p.protocol === "bridge-codex-inbox-v1" ? "codex" : "claude", p.sessionId]);
+    if (sessions.has(sessionKey)) throw Error("Duplicate session ID within the same channel protocol");
+    sessions.add(sessionKey);
     let url;
     try {
       url = new URL(p.url);
@@ -222,6 +229,7 @@ var ChannelPeers = class {
 };
 export {
   ChannelPeers,
+  assertPeersPlatform,
   defaultPeersFile,
   loadChannelPeers,
   validateChannelPeers
