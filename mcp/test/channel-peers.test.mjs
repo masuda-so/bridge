@@ -4,7 +4,7 @@ import {mkdtemp,writeFile,chmod,rm} from 'node:fs/promises';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {Channel,listenChannel} from '../channel.mjs';
-import {ChannelPeers,loadChannelPeers} from '../channel-peers.mjs';
+import {ChannelPeers,loadChannelPeers,validateChannelPeers,assertPeersPlatform} from '../channel-peers.mjs';
 
 test('two available sessions are discovered and repeated replies stay with the selected session',async()=>{
  const endpoints=[],calls=[];const token='local-test-token'.repeat(3);
@@ -55,4 +55,16 @@ test('private peer configuration rejects public credentials and nonlocal origins
   await assert.rejects(loadChannelPeers(join(dir,'missing.json')),{code:'ENOENT'});
   assert.deepEqual(await loadChannelPeers(''),[]);
  }finally{await rm(dir,{recursive:true,force:true});}
+});
+
+ test('session IDs are unique within each reply protocol',()=>{
+ const peer={id:'a',sessionId:'same',url:'http://127.0.0.1:8790',token:'fixture-'.repeat(8)};
+ assert.throws(()=>validateChannelPeers([peer,{...peer,id:'b'}]),/Duplicate session ID/);
+ assert.throws(()=>validateChannelPeers([{...peer,protocol:'bridge-codex-inbox-v1'},{...peer,id:'b',protocol:'bridge-codex-inbox-v1'}]),/Duplicate session ID/);
+ assert.equal(validateChannelPeers([peer,{...peer,id:'b',protocol:'bridge-codex-inbox-v1'}]).length,2);
+ });
+
+test('Windows private peers fail explicitly without bypassing security checks',()=>{
+ assert.throws(()=>assertPeersPlatform('win32'),/Windows is unsupported/);
+ assert.doesNotThrow(()=>assertPeersPlatform('darwin'));assert.doesNotThrow(()=>assertPeersPlatform('linux'));
 });

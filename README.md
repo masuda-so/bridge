@@ -332,6 +332,9 @@ Claudeが `bridge_channel_reply` を呼ぶまで成功とせず、タイムア�
 送信側は所有者専用ファイル（0600）のJSON配列から候補を読みます。既定の場所は
 `~/.config/bridge/peers.json` で、`BRIDGE_CHANNEL_PEERS_FILE` で上書きできます。各要素は `id`, `sessionId`, `url`, `token` と任意の
 `title` を持ちます。`url` は `http://127.0.0.1:ポート` のみ受け付けます。
+同じ返信プロトコル内の `sessionId` は重複できません。
+このファイルの読込みはPOSIXの所有者・権限・symlink検査を前提とします。
+Windowsは未対応で、権限検査を省略せず明示的に拒否します。
 これは接続設定であり来歴台帳ではありません。トークンをGitへ保存しないでください。
 探索時に認証付きで識別情報を照合し、エージェントにはトークンを返しません。
 送信時はpeerIdとsessionIdを再照合します。自動的な全Claudeセッションの発見や、
@@ -426,3 +429,7 @@ The Agent Skills format was originally developed by [Anthropic](https://www.anth
 ## License
 
 Code in this repository is licensed under [Apache 2.0](LICENSE). Documentation is licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). See individual directories for details.
+
+バックグラウンド起動と起動後の識別確認は、起動呼び出しから45秒の観測期限を共有します。
+起動コマンドが期限内に終了しなければ、その子プロセスへ終了を要求して結果をunknownとします。
+既存・起動済みセッションの停止や削除、代替起動、自動再送は行いません。

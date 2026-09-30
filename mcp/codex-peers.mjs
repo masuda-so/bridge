@@ -120,6 +120,8 @@ export async function waitCodexReply(peer,{sessionId,messageId,timeoutMs=30000})
     return {status:result.status,...echo,final:result.final,
       ...(result.target!==undefined?{target:validateTarget(result.target)}:{}),
       ...(['delivered','queued'].includes(result.deliveryStatus)?{deliveryStatus:result.deliveryStatus}:{}),
+      ...(typeof result.delivery==='string'?{delivery:result.delivery}:{}),
+      ...(result.status==='failed'&&typeof result.error==='string'?{error:result.error}:{}),
       ...(result.status==='replied'?{reply:result.reply}:{}),
       note:result.status==='replied'?'Reply received.':
         result.final?'Observation ended; a reply has not been confirmed. '+noRetry:

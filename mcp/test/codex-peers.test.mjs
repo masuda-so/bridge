@@ -34,7 +34,8 @@ async function fixture(t,handler=(_req,res)=>json(res,404,{})){
 
 test('Codex discovery filters the shared Claude peer and validates readiness without exposing credentials',async t=>{
   const ready=await fixture(t),idle=await fixture(t),wrong=await fixture(t);
-  idle.peer.id='idle';idle.state.ready=false;wrong.peer.id='wrong';wrong.state.sessionId='other-session';
+  idle.peer.id='idle';idle.peer.sessionId=idle.state.sessionId='idle-receiver';idle.state.ready=false;
+  wrong.peer.id='wrong';wrong.peer.sessionId='wrong-receiver';wrong.state.sessionId='other-session';
   const claude={...ready.peer,id:'relay-1',protocol:undefined};
   const result=await discoverCodexPeers([claude,ready.peer,idle.peer,wrong.peer]);
   assert.deepEqual(result.candidates.map(p=>[p.peerId,p.ready]),[['codex-relay-1',true],['idle',false]]);
@@ -214,4 +215,16 @@ test('a submission redirect is not followed and cannot send credentials or text 
   const result=await submitCodexToPeer(source.peer,{sessionId:source.peer.sessionId,body,target});
   assert.equal(result.status,'unknown');assert.equal(source.calls.filter(c=>c.method==='POST').length,1);
   assert.equal(destination.calls.length,0);
+});
+
+test('observations preserve validated delivery and terminal failure text',async t=>{
+ let result={status:'failed',final:true,error:'Destination cannot receive this request.'};
+ const f=await fixture(t,(_req,res)=>json(res,200,{sessionId:'codex-receiver',messageId:'receipt-1',...result}));
+ const args={sessionId:f.peer.sessionId,messageId:'receipt-1',timeoutMs:10};
+ assert.equal((await waitCodexReply(f.peer,args)).error,result.error);
+ result={status:'pending',final:false,deliveryStatus:'queued',delivery:'Queued by the host.'};
+ assert.equal((await waitCodexReply(f.peer,args)).delivery,result.delivery);
+ result={...result,delivery:{invalid:true},error:{invalid:true}};
+ const invalid=await waitCodexReply(f.peer,args);assert.ok(!('delivery' in invalid));assert.ok(!('error' in invalid));
+ assert.ok(f.calls.every(c=>c.method==='GET'));
 });

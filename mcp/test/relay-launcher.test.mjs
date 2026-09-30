@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {chmod,mkdtemp,rm,symlink,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
-import {runLauncher} from '../../relay/start-relay.mjs';
+import {runLauncher,launchProcess} from '../../relay/start-relay.mjs';
 import {loadChannelPeers} from '../channel-peers.mjs';
 
 const testPeer={id:'relay-1',sessionId:'relay-channel',url:'http://127.0.0.1:8790',token:'launcher-fixture-token-'.repeat(3)};
@@ -144,4 +144,18 @@ test('known relay and invalid options cannot cause a replacement launch',async t
   const invalid=await fixture(t);
   assert.equal((await runLauncher(args,invalid.dependencies)).output.status,'failed');assert.equal(invalid.operations.length,0);
  }
+});
+
+test('a stalled launcher child ends observation within its deadline',async()=>{
+ const started=Date.now();
+ const result=await launchProcess([process.execPath,'-e','setInterval(()=>{},1000)'],{cwd:process.cwd(),env:process.env,timeoutMs:30});
+ assert.equal(result.timedOut,true);assert.equal(result.code,null);assert.ok(Date.now()-started<3000);
+});
+
+test('an unsuccessful launch never sends a probe or launches a replacement',async t=>{
+ const h=await fixture(t);let launches=0;
+ h.dependencies.launch=async()=>{launches++;return {code:null,timedOut:true};};
+ const result=await runLauncher([],h.dependencies);
+ assert.equal(result.output.status,'unknown');assert.equal(launches,1);
+ assert.ok(!h.operations.some(o=>o.type==='http'));
 });
