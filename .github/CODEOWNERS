@@ -1,0 +1,6 @@
+# コードオーナー（GitHub Docs「About code owners」の形式）
+# 対象パスに変更があった Pull Request で、ここに書かれたオーナーが自動的にレビュー依頼を受ける。
+# Code owners in the format described in GitHub Docs "About code owners".
+# Owners listed here are automatically requested for review on pull requests touching the matching paths.
+
+* @masuda-so
